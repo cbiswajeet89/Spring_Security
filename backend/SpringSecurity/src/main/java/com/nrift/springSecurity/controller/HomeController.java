@@ -14,14 +14,14 @@ public class HomeController {
 		System.out.println("hi");
 		return "welcome home";
 	}
-	
+
 	@GetMapping("/admin")
-//	@PreAuthorize("hasAuthority('ROLE_ADMIN')")
+	@PreAuthorize("hasAuthority('ADMIN')")
 	public String admin() {
 		return "welcome admin";
 	}
-	
-//	@PreAuthorize("hasAuthority('ROLE_USER')")
+
+	@PreAuthorize("hasAuthority('USER')")
 	@GetMapping("/usr")
 	public String usr() {
 		return "welcome usr";

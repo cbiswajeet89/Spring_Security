@@ -15,28 +15,26 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
 import com.nrift.springSecurity.entity.Employee;
-import com.nrift.springSecurity.entity.Role;
+import com.nrift.springSecurity.entity.EmployeeRole;
 import com.nrift.springSecurity.repository.EmployeeRepository;
 
 @Service
-public class EmployeeUserDetailsService implements UserDetailsService{
+public class CustomUserDetailsService implements UserDetailsService {
 
 	@Autowired
 	private EmployeeRepository employeeRepository;
-	
+
 	@Override
 	public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
 		// TODO Auto-generated method stub
 		Optional<Employee> emp = employeeRepository.findByEmail(username);
-		System.out.println("emp="+emp);
-		return new User(emp.get().getEmail(), emp.get().getPassword(), mapRolesToAuthorities(emp.get().getRoles()));
-//		return emp.map(EmployeeInfoDetails::new)
-//		.orElseThrow(()->new UsernameNotFoundException(username+" not found"));
+		return new User(emp.get().getEmail(), emp.get().getPassword(),
+				mapRolesToAuthorities(emp.get().getEmployeeRoles()));
 	}
 
-	private Collection<GrantedAuthority> mapRolesToAuthorities(List<Role> roles) {
-        return roles.stream().map(role -> new SimpleGrantedAuthority(role.getRoleName())).collect(Collectors.toList());
-    }
-	
-	
+	private Collection<GrantedAuthority> mapRolesToAuthorities(List<EmployeeRole> roles) {
+		return roles.stream().map(mapper -> new SimpleGrantedAuthority(mapper.getRole().getRoleName()))
+				.collect(Collectors.toList());
+	}
+
 }

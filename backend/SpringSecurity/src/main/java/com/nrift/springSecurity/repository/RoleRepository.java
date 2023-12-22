@@ -6,4 +6,5 @@ import com.nrift.springSecurity.entity.Role;
 
 public interface RoleRepository extends JpaRepository<Role, Integer> {
 
+	public Role findByRoleName(String roleName);
 }

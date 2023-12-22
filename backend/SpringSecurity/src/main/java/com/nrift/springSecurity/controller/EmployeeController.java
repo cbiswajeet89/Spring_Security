@@ -12,35 +12,41 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.nrift.springSecurity.entity.Employee;
+import com.nrift.springSecurity.entity.EmployeeRole;
 import com.nrift.springSecurity.entity.Role;
-import com.nrift.springSecurity.repository.EmployeeRepository;
-import com.nrift.springSecurity.repository.RoleRepository;
+import com.nrift.springSecurity.service.EmployeeService;
+import com.nrift.springSecurity.service.RoleService;
 
 @RestController
 public class EmployeeController {
 
 	@Autowired
-	private EmployeeRepository employeeRepository;
-	
+	private EmployeeService employeeService;
+
 	@Autowired
-	private RoleRepository roleRepository;
-	
+	private RoleService roleService;
+
 	@Autowired
 	private PasswordEncoder passwordEncoder;
-	
+
 	@PostMapping("/addEmployee")
-	public ResponseEntity<Employee> createEmployee(@RequestBody Employee emp){
-		System.out.println("add emp	");
-		System.out.println(emp.getPassword());
-		emp.setPassword(passwordEncoder.encode(emp.getPassword()));
-		System.out.println(emp.getPassword());
-		List<Role> roles = roleRepository.findAll();
-		emp.setRoles(roles);
-		return ResponseEntity.ok(employeeRepository.save(emp));
+	public ResponseEntity<?> createEmployee(@RequestBody Employee employee) throws Exception {
+		List<EmployeeRole> roles = new ArrayList<>();
+		Role role = roleService.getRoleByRoleName("USER");
+		employee.setPassword(passwordEncoder.encode(employee.getPassword()));
+		EmployeeRole employeeRole = new EmployeeRole();
+		employeeRole.setRole(role);
+		employeeRole.setEmployee(employee);
+		roles.add(employeeRole);
+		Employee emp = employeeService.createEmployee(employee, roles);
+		if (emp != null)
+			return ResponseEntity.ok(emp);
+		else
+			return ResponseEntity.ok("could not process");
 	}
+
 	@GetMapping("/listEmp")
-	public ResponseEntity<List<Employee>> listEmployees(){
-		System.out.println("see emp	");
-		return ResponseEntity.ok(employeeRepository.findAll());
+	public ResponseEntity<List<Employee>> listEmployees() {
+		return ResponseEntity.ok(employeeService.fetchAllEmployees());
 	}
 }
